@@ -7,4 +7,3 @@ int main() {
     return 0;
 }
 
-//cmake - działanie na apple GLAD(v. 4.1)
