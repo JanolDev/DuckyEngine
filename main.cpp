@@ -1,7 +1,6 @@
+#include "glad/glad.h"
 #include <GLFW/glfw3.h>
 #include <iostream>
-
-#include "glad/glad.h"
 
 
 //“Here is exactly how the GPU shall draw this triangle, with no assumptions, no magic, no MERCY.”
