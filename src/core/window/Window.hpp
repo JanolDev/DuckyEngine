@@ -3,20 +3,20 @@
 
 class Window {
 public:
-    Window(int width, int height, const char *title);
-
+    Window(int width, int height, const char* title);
     ~Window();
 
     bool shouldClose() const;
-
     void pollEvents() const;
-
     void swapBuffers() const;
 
-    GLFWwindow *getHandle() const;
+    GLFWwindow* getHandle() const;
+
+    void setSize(int width, int height);
+
 
 private:
-    GLFWwindow *window;
+    GLFWwindow* window = nullptr;
 
-    static void frameBufferCallback(GLFWwindow *win, int w, int h);
+    static void framebufferCallback(GLFWwindow* window, int width, int height);
 };

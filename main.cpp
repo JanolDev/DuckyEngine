@@ -1,136 +1,117 @@
-#include "./src/core/window/Window.hpp"
+#include <glad/glad.h>
 
+#include "src/core/window/Window.hpp"
+#include "src/core/gui/GuiLayer.hpp"
+#include "src/core/filesystem/ProjectBrowser.hpp"
+#include "src/core/menubar/MenuBar.hpp"
+#include <tinyfiledialogs.h>
+#include "src/core/textureloader/TextureLoader.hpp"
 
-//“Here is exactly how the GPU shall draw this triangle, with no assumptions, no magic, no MERCY.”
-
-//screen resolution
-// int WIDTH = 800;
-// int HEIGHT = 600;
-//
-// //change resolution of the viewport according to changes in window size
-// void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
-//     glViewport(0, 0, width, height);
-// }
-//
-// // function check if esc was clicked while being inside window
-// //If yes then forces it to close/terminate
-// void processInput(GLFWwindow *window) {
-//     if (glfwGetKey(window,GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-//         glfwSetWindowShouldClose(window, true);
-//     }
-//     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-//         glClear(GL_COLOR_BUFFER_BIT);
-//         glClearColor(1.0f, 0.7f, 0.4, 1.0f);
-//     }
-// }
 int main() {
-    //
+    bool showExplorer = true;
+
+    // Define normal and splash screen window sizes
+    const int NORMAL_WIDTH = 1280;
+    const int NORMAL_HEIGHT = 800;
+    const int SPLASH_WIDTH = 238;
+    const int SPLASH_HEIGHT = 238;
+    const float SPLASH_DURATION = 2.0f; // Duration of splash screen in seconds
+
+    // Create window with initial splash screen size
+    Window window(SPLASH_WIDTH, SPLASH_HEIGHT, "DuckyEngine Editor");
+    GuiLayer gui(window);
+    ProjectBrowser projectBrowser(".");
+    MenuBar menuBar;
 
 
+    // Load the application logo texture for the splash screen
+    unsigned int logoTexture = loadTextureFromFile("../ui/icon/logo.png");
+    unsigned int backgroundTexture = loadTextureFromFile("../ui/icon/background.png");
 
+    // Define application states: SplashScreen or Running
+    enum class AppState { SplashScreen, Running };
+    AppState state = AppState::SplashScreen;
+    float splashTimeElapsed = 0.0f;
 
-    //Zanim zaczniesz przeczytaj ten komentarz
+    // ───────── MenuBar callbacks ─────────
+    // Callback for creating a new project
+    menuBar.onNewProject = [&]() {
+        const char* folder = tinyfd_selectFolderDialog("Select Folder for New Project", ".");
+        if (folder) projectBrowser.openFolder(folder);
+    };
 
-    //sciezna w ktorej znajduja sie funkcje uzyte ponizej:
-    //src/core/window/Window.hpp/cpp
-    //Zrobile inicjalizacje okna, funkcje callback
-    //zeby zmianial rozmiar viewporta jak window sie zmienia
-    //i analogicznie do tego zrobilem podstawowe finkcje.
-    //poll do zbierania imputow - tak mi sie wydaje ze od tego bylo
-   //swap buffers - to jest to czego nie rozumielismy
-    //a zwyczajnie to zamiania ostatni buffer z pierwszym
-    //dzieki temu sie renderuje w oknie(nwm jak)
-    // jest jeszcze pare funkcji ktorych nie uzylem bo musialem sie szykowac naimpreze
-    //w pliku hpp masz wszystkie ktore zdazylem zrobic a w cpp jak one dzialaja.
-    //licze na to ze poprawisz moj kod jesli znajdziesz bledy
-    //wprowadzisz komentarze, zmiany ,optymalizacje
-    //przepraszam nie zdazylem zrobic zmiany koloru okna :(
+    // Callback for opening an existing project
+    menuBar.onOpenProject = [&]() {
+        const char* folder = tinyfd_selectFolderDialog("Select Existing Project", ".");
+        if (folder) projectBrowser.openFolder(folder);
+    };
 
-    //po przeczytaniu usun ten komentarz i przefiltruj caly main bo nie chcialem usuwac wszystkiego wiec zakomentowalem
-    // Powodzenia
+    // Callback to exit the application
+    menuBar.onExit = [&]() {
+        glfwSetWindowShouldClose(window.getHandle(), true);
+    };
 
+    // Callback to undo folder navigation
+    menuBar.onUndo = [&]() {
+        if (!projectBrowser.m_historyBack.empty()) {
+            projectBrowser.m_historyForward.push_back(projectBrowser.m_currentPath);
+            projectBrowser.m_currentPath = projectBrowser.m_historyBack.back();
+            projectBrowser.m_historyBack.pop_back();
+        }
+    };
 
+    // Callback to redo folder navigation
+    menuBar.onRedo = [&]() {
+        if (!projectBrowser.m_historyForward.empty()) {
+            projectBrowser.m_historyBack.push_back(projectBrowser.m_currentPath);
+            projectBrowser.m_currentPath = projectBrowser.m_historyForward.back();
+            projectBrowser.m_historyForward.pop_back();
+        }
+    };
 
+    // Callback to toggle visibility of the Project Explorer panel
+    menuBar.onToggleExplorer = [&]() {
+        showExplorer = !showExplorer;
+    };
 
-
-
-    Window window(800, 600,"Engine");
-
+    // ───────── Main loop ─────────
     while (!window.shouldClose()) {
+        // Poll input events
+        window.pollEvents();
+
+        // Clear the screen with a dark gray background
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        gui.begin();
+
+        if (state == AppState::SplashScreen) {
+            // Draw splash screen centered in the window
+            gui.drawSplashScreen(logoTexture, SPLASH_DURATION);
+
+            // Track elapsed time for splash screen
+            splashTimeElapsed += ImGui::GetIO().DeltaTime;
+            if (splashTimeElapsed >= SPLASH_DURATION) {
+                state = AppState::Running; // Transition to main application
+                window.setSize(NORMAL_WIDTH, NORMAL_HEIGHT); // Restore normal window size
+            }
+
+        } else if (state == AppState::Running) {
+            // Draw menu bar and main application UI
+            menuBar.draw();
+            //draw ummm background... yeah, that is an excellent background image art... don't judge us. we just like duck... a very strong one... with muscles...
+            gui.drawBackground(backgroundTexture, 0.2f);
+
+            // Draw the Project Explorer if enabled
+            if (showExplorer)
+                projectBrowser.draw();
+        }
+
+        gui.end();
+
+        // Swap the front and back buffers to display the rendered frame
         window.swapBuffers();
-        window.pollEvents();
     }
 
-
-
-
-
-
-
-
-
-//     //Initialize Window and by it we load all libraries of glfw
-//     //We define version of the glfw major and minor
-//     //we initialize profile with all core libraries
-//     glfwInit();
-//     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-//     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-//     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-//
-//     //macOS requires forward-compatible core profile for OpenGL
-//     //This removes deprecated functions satisfy macOS's OpenGL requirements
-// #ifdef __APPLE__
-//     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-// #endif
-//
-//     //Create a windowed mode window with given width, height, and title
-//     //last two parameters: first: windowed window, not fullscreen; second: no shared context
-//     GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "Hello Window", nullptr, nullptr);
-//
-//     //If by making a window we get some bugs or failures we  terminate the process
-//     if (!window) {
-//         std::cout << "Failed to create GLFW window\n";
-//         glfwTerminate();
-//         return -1;
-//     }
-//
-//     // We make our current/main context
-//     glfwMakeContextCurrent(window);
-//
-//     //If glad was not sucessfully initialized we end pro
-//     if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
-//         std::cout << "Failed to initialize GLAD\n";
-//         return -1;
-//     }
-//
-//     //Setting the size of the viewport
-//     glViewport(0, 0, WIDTH, HEIGHT);
-//
-//
-//     //Executing viewport resizing according to the size of the window
-//     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-//
-//
-//     //checks if app should be closed or not
-//     //changing pixel colors according to executed functions
-//     //listener to keyboard and mouse inputs
-//     while (!glfwWindowShouldClose(window)) {
-//         processInput(window);
-//
-//         //rendering commands goes here
-//         //glClearColor just sets background color (RGBA)
-//         //glClear cleares color buffer (will be filled with glClearColor)a
-//         //so clear color ustawiasz kolor a gl clear jakby go wzrucasz? wsenie definicja->uzycie? takkkkkkk:)choc do gory ci wytlumacze
-//         //glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-//         //glClear(GL_COLOR_BUFFER_BIT);
-//
-//         glfwPollEvents();
-//         glfwSwapBuffers(window);
-//     }
-//
-//     //terminate all app processes
-//     glfwTerminate();
     return 0;
 }
