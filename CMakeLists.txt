@@ -17,6 +17,8 @@ find_package(glfw3 3.3 REQUIRED)
 add_executable(DuckyEngine
         main.cpp
         glad/src/glad.c
+        src/core/window/Window.hpp
+        src/core/window/Window.cpp
 )
 
 target_include_directories(DuckyEngine PRIVATE glad/include)
