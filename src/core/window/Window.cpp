@@ -1,9 +1,9 @@
-#include "Window.hpp"
-
 #include <glad/glad.h>
+
+#include "Window.hpp"
 #include <stdexcept>
 
-Window::Window(int width, int height, const char* title) {
+Window::Window(int width, int height, const char *title) {
     // Initialize GLFW library
     if (!glfwInit())
         throw std::runtime_error("Failed to initialize GLFW");
@@ -27,7 +27,7 @@ Window::Window(int width, int height, const char* title) {
     glfwMakeContextCurrent(window);
 
     // Load OpenGL function pointers using GLAD
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress))
         throw std::runtime_error("Failed to initialize GLAD");
 
     // Set callback to adjust viewport when window is resized
@@ -40,7 +40,7 @@ Window::~Window() {
     glfwTerminate();
 }
 
-void Window::framebufferCallback(GLFWwindow*, int width, int height) {
+void Window::framebufferCallback(GLFWwindow *, int width, int height) {
     // Update OpenGL viewport to match new window size
     glViewport(0, 0, width, height);
 }
@@ -48,6 +48,10 @@ void Window::framebufferCallback(GLFWwindow*, int width, int height) {
 bool Window::shouldClose() const {
     // Check if the window should close
     return glfwWindowShouldClose(window);
+}
+
+void Window::closeWindow() const {
+    glfwSetWindowShouldClose(window, true);
 }
 
 void Window::pollEvents() const {
@@ -60,7 +64,12 @@ void Window::swapBuffers() const {
     glfwSwapBuffers(window);
 }
 
-GLFWwindow* Window::getHandle() const {
+void Window::setBackgroundColor(float r, float g, float b, float alpha) const {
+    glClearColor(r, g, b, alpha);
+    glClear(GL_COLOR_BUFFER_BIT);
+}
+
+GLFWwindow *Window::getHandle() const {
     // Return the raw GLFWwindow pointer
     return window;
 }
@@ -69,3 +78,13 @@ void Window::setSize(int width, int height) {
     // Set the window size dynamically
     glfwSetWindowSize(window, width, height);
 }
+
+// void Window::setWindowFullScreen(bool enable) const {
+//     if (enable) {
+//         glfwGetWindowPos(window, &windowedPosX, &windowedPosY);
+//         glfwGetWindowSize(window, &windowedWidth, &windowedHeight);
+//
+//         GLFWwindow* monitor= glfwGetPrimaryMonitor();
+//     }
+//
+// }

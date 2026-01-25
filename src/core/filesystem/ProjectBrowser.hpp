@@ -24,7 +24,6 @@ public:
     void createFolder();
     void createFile();
     void deleteSelected();
-    void refresh();
     void renameSelected();
 private:
     bool m_renaming = false;

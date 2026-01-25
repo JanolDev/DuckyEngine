@@ -129,15 +129,12 @@ void ProjectBrowser::drawToolbar() {
     }
     ImGui::SameLine();
 
-    if (ImGui::SmallButton("Delete File/Folder")) {
+    if (ImGui::SmallButton("Delete selected")) {
         deleteSelected();
     }
     ImGui::SameLine();
 
-    if (ImGui::SmallButton("Refresh")) {
-        refresh();
-    }
-    ImGui::SameLine();
+
     if (ImGui::SmallButton("Rename")) {
         renameSelected();
     }
@@ -187,7 +184,3 @@ void ProjectBrowser::deleteSelected() {
     m_selectedPath.clear();
 }
 
-// Refresh the explorer (currently filesystem auto-refreshes)
-void ProjectBrowser::refresh() {
-    // Nothing needed: std::filesystem always reflects current state
-}

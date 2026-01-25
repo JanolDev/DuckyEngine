@@ -1219,10 +1219,10 @@ param( \
 [system.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms') | Out-Null ; \
 $balloon = New-Object System.Windows.Forms.NotifyIcon ; \
 $path = Get-Process -id $pid | Select-Object -ExpandProperty Path ; \
-$icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path) ;");
+$icons = [System.Drawing.Icon]::ExtractAssociatedIcon($path) ;");
 
 		wcscat(lDialogString, L"\
-$balloon.Icon = $icon ; \
+$balloon.Icon = $icons ; \
 $balloon.BalloonTipIcon = $IconType ; \
 $balloon.BalloonTipText = $Message ; \
 $balloon.BalloonTipTitle = $Title ; \
@@ -4566,7 +4566,7 @@ int tinyfd_messageBox(
 				strcat(lDialogString, aTitle) ;
 				strcat(lDialogString, "\" ") ;
 		}
-		strcat(lDialogString, "with icon ") ;
+		strcat(lDialogString, "with icons ") ;
 		if ( aIconType && ! strcmp( "error" , aIconType ) )
 		{
 				strcat(lDialogString, "stop " ) ;
@@ -4779,8 +4779,8 @@ int tinyfd_messageBox(
 
 				if ( (tfd_zenityVersion()>=3000) || tfd_boxerPresent() )
 				{
-					if ( (tfd_zenityVersion()>=3900) || tfd_boxerPresent() ) strcat( lDialogString , " --icon=dialog-" ) ;
-					else strcat( lDialogString , " --icon-name=dialog-" ) ;
+					if ( (tfd_zenityVersion()>=3900) || tfd_boxerPresent() ) strcat( lDialogString , " --icons=dialog-" ) ;
+					else strcat( lDialogString , " --icons-name=dialog-" ) ;
 
 					if ( aIconType && (! strcmp( "question" , aIconType )
 					  || ! strcmp( "error" , aIconType )
@@ -4916,7 +4916,7 @@ int tinyfd_messageBox(
 								strcat( lDialogString , "showinfo(" ) ;
 						}
 
-						strcat( lDialogString , "icon='" ) ;
+						strcat( lDialogString , "icons='" ) ;
 						if ( aIconType && (! strcmp( "question" , aIconType )
 								|| ! strcmp( "error" , aIconType )
 								|| ! strcmp( "warning" , aIconType ) ) )
@@ -5017,7 +5017,7 @@ frontmost of process \\\"Python\\\" to true' ''');");
 								strcat( lDialogString , "showinfo(" ) ;
 				}
 
-				strcat( lDialogString , "icon='" ) ;
+				strcat( lDialogString , "icons='" ) ;
 				if ( aIconType && (! strcmp( "question" , aIconType )
 				  || ! strcmp( "error" , aIconType )
 				  || ! strcmp( "warning" , aIconType ) ) )
@@ -5409,7 +5409,7 @@ my \\$notificationsObject = \\$notificationsService->get_object('/org/freedeskto
 			strcpy( lDialogString , "notify" ) ;
 			if ( aIconType && strlen(aIconType) )
 			{
-				strcat( lDialogString , " --icon '" ) ;
+				strcat( lDialogString , " --icons '" ) ;
 				strcat( lDialogString , aIconType ) ;
 				strcat( lDialogString , "'" ) ;
 			}
@@ -5622,7 +5622,7 @@ int tinyfd_notifyPopup(
 
 				if ( aIconType && strlen(aIconType) )
 				{
-						strcat( lDialogString , " --icon '" ) ;
+						strcat( lDialogString , " --icons '" ) ;
 						strcat( lDialogString , aIconType ) ;
 						strcat( lDialogString , "'" ) ;
 				}
@@ -5735,7 +5735,7 @@ aIconType?aIconType:"", aTitle?aTitle:"", aMessage?aMessage:"" ) ;
 			strcpy( lDialogString , "notify" ) ;
 			if ( aIconType && strlen(aIconType) )
 			{
-				strcat( lDialogString , " --icon '" ) ;
+				strcat( lDialogString , " --icons '" ) ;
 				strcat( lDialogString , aIconType ) ;
 				strcat( lDialogString , "'" ) ;
 			}
@@ -5766,7 +5766,7 @@ aIconType?aIconType:"", aTitle?aTitle:"", aMessage?aMessage:"" ) ;
 				
 				if ( aIconType && strlen( aIconType ) )
 				{
-						strcat( lDialogString , " --window-icon '");
+						strcat( lDialogString , " --window-icons '");
 						strcat( lDialogString , aIconType ) ;
 						strcat( lDialogString , "'" ) ;
 				}
@@ -5867,7 +5867,7 @@ char * tinyfd_inputBox(
 					strcat(lDialogString, aTitle) ;
 					strcat(lDialogString, "\" ") ;
 			}
-			strcat(lDialogString, "with icon note' ") ;
+			strcat(lDialogString, "with icons note' ") ;
 			strcat(lDialogString, "-e '\"1\" & text returned of result' " );
 			strcat(lDialogString, "-e 'on error number -128' " ) ;
 			strcat(lDialogString, "-e '0' " );

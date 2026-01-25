@@ -14,13 +14,13 @@ GuiLayer::GuiLayer(Window& window) {
     // Apply custom color theme and styling
     setupTheme();
 
-    // Access ImGui IO structure for font and display settings
+    // Access ImGui IO structure for fonts and display settings
     ImGuiIO& io = ImGui::GetIO();
 
-    // Load a custom font, fallback to default if not found
-    const char* fontPath = "../ui/font/mainFont/JetBrainsMono-Bold.ttf";
+    // Load a custom fonts, fallback to default if not found
+    const char* fontPath = "../assets/fonts/mainFont/JetBrainsMono-Bold.ttf";
     if (!std::filesystem::exists(fontPath) || !io.Fonts->AddFontFromFileTTF(fontPath, 16.0f)) {
-        std::cout << "Font not found, using default font.\n";
+        std::cout << "Font not found, using default fonts.\n";
         io.Fonts->AddFontDefault();
     }
 

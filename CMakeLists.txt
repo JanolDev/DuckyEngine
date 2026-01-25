@@ -30,8 +30,8 @@ set(IMGUI_SOURCES
 set(TINYFILEDIALOGS_DIR ${CMAKE_SOURCE_DIR}/external/tinyfiledialogs)
 set(TINYFILEDIALOGS_SOURCES
         ${TINYFILEDIALOGS_DIR}/tinyfiledialogs.c
-        src/core/menubar/menubar.cpp
-        src/core/menubar/menubar.hpp
+        src/core/menubar/MenuBar.cpp
+        src/core/menubar/MenuBar.hpp
         src/core/textureloader/TextureLoader.cpp
         src/core/textureloader/TextureLoader.hpp
         external/images/stb_image.h
@@ -59,8 +59,8 @@ add_executable(DuckyEngine
         src/core/window/Window.cpp
         src/core/gui/GuiLayer.cpp
         src/core/filesystem/ProjectBrowser.cpp
-        src/core/menubar/menubar.cpp
-        src/core/menubar/menubar.hpp
+        src/core/menubar/MenuBar.cpp
+        src/core/menubar/MenuBar.hpp
         src/core/textureloader/TextureLoader.cpp
         src/core/textureloader/TextureLoader.hpp
         src/core/renderer/Renderer.cpp

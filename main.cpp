@@ -6,6 +6,7 @@
 #include "src/core/menubar/MenuBar.hpp"
 #include <tinyfiledialogs.h>
 #include "src/core/textureloader/TextureLoader.hpp"
+#include "src/core/renderer/Renderer.hpp"
 
 int main() {
     bool showExplorer = true;
@@ -22,11 +23,11 @@ int main() {
     GuiLayer gui(window);
     ProjectBrowser projectBrowser(".");
     MenuBar menuBar;
-
+    TriangleRenderer triangle;
 
     // Load the application logo texture for the splash screen
-    unsigned int logoTexture = loadTextureFromFile("../ui/icon/logo.png");
-    unsigned int backgroundTexture = loadTextureFromFile("../ui/icon/background.png");
+    unsigned int logoTexture = loadTextureFromFile("../assets/icons/logo.png");
+    unsigned int backgroundTexture = loadTextureFromFile("../assets/icons/background.png");
 
     // Define application states: SplashScreen or Running
     enum class AppState { SplashScreen, Running };
@@ -48,7 +49,7 @@ int main() {
 
     // Callback to exit the application
     menuBar.onExit = [&]() {
-        glfwSetWindowShouldClose(window.getHandle(), true);
+        window.closeWindow();
     };
 
     // Callback to undo folder navigation
@@ -80,8 +81,9 @@ int main() {
         window.pollEvents();
 
         // Clear the screen with a dark gray background
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        // glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        // glClear(GL_COLOR_BUFFER_BIT);
+        window.setBackgroundColor(0.5f, 0.3f, 0.3f, 1.f);
 
         gui.begin();
 
@@ -106,6 +108,10 @@ int main() {
             if (showExplorer)
                 projectBrowser.draw();
         }
+
+        triangle.draw();
+
+
 
         gui.end();
 

@@ -7,8 +7,12 @@ public:
     ~Window();
 
     bool shouldClose() const;
+    void closeWindow() const;
     void pollEvents() const;
     void swapBuffers() const;
+    void setBackgroundColor(float r, float g,float b, float alpha) const;
+    void setWindowFullScreen(bool enable) const;
+
 
     GLFWwindow* getHandle() const;
 
