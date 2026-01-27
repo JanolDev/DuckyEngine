@@ -29,6 +29,10 @@ extern "C" char const * tinyfd_openFileDialog(char const * aTitle, char const * 
 #define M_PI 3.14159265358979323846
 #endif
 
+// --- DODANE STAŁE POMOCNICZE (Naprawa rotacji i narrowing error) ---
+const float PI_F = 3.1415926535f;
+const float DEG2RAD = PI_F / 180.0f;
+const float RAD2DEG = 180.0f / PI_F;
 
 Vec4 multiply(const Mat4& m, const Vec4& v) {
     const float* p = m.data();
@@ -49,8 +53,8 @@ GeneratedMesh generateSphereMesh(int sectors, int stacks) {
     float radius = 0.5f;
 
     auto getPoint = [&](int i, int j) -> std::vector<float> {
-        float stackAngle = M_PI / 2 - (float)i / stacks * M_PI;
-        float sectorAngle = (float)j / sectors * 2 * M_PI;
+        float stackAngle = PI_F / 2 - (float)i / stacks * PI_F;
+        float sectorAngle = (float)j / sectors * 2 * PI_F;
 
         float xy = radius * cosf(stackAngle);
         float z = xy * cosf(sectorAngle);
@@ -105,8 +109,8 @@ GeneratedMesh generateCylinderMesh(int sectors) {
 
 
     for(int i = 0; i < sectors; ++i) {
-        float angle1 = (float)i / sectors * 2.0f * M_PI;
-        float angle2 = (float)(i + 1) / sectors * 2.0f * M_PI;
+        float angle1 = (float)i / sectors * 2.0f * PI_F;
+        float angle2 = (float)(i + 1) / sectors * 2.0f * PI_F;
 
         float x1 = cos(angle1) * radius; float z1 = sin(angle1) * radius;
         float x2 = cos(angle2) * radius; float z2 = sin(angle2) * radius;
@@ -123,8 +127,8 @@ GeneratedMesh generateCylinderMesh(int sectors) {
 
 
     for(int i = 0; i < sectors; ++i) {
-        float angle1 = (float)i / sectors * 2.0f * M_PI;
-        float angle2 = (float)(i + 1) / sectors * 2.0f * M_PI;
+        float angle1 = (float)i / sectors * 2.0f * PI_F;
+        float angle2 = (float)(i + 1) / sectors * 2.0f * PI_F;
         float x1 = cos(angle1) * radius; float z1 = sin(angle1) * radius;
         float x2 = cos(angle2) * radius; float z2 = sin(angle2) * radius;
 
@@ -135,8 +139,8 @@ GeneratedMesh generateCylinderMesh(int sectors) {
 
 
     for(int i = 0; i < sectors; ++i) {
-        float angle1 = (float)i / sectors * 2.0f * M_PI;
-        float angle2 = (float)(i + 1) / sectors * 2.0f * M_PI;
+        float angle1 = (float)i / sectors * 2.0f * PI_F;
+        float angle2 = (float)(i + 1) / sectors * 2.0f * PI_F;
         float x1 = cos(angle1) * radius; float z1 = sin(angle1) * radius;
         float x2 = cos(angle2) * radius; float z2 = sin(angle2) * radius;
 
@@ -361,7 +365,14 @@ int main() {
                 if(s) {
                     float *v = (float*)view.data(), *p = (float*)proj.data(); Mat4 mm = s->transform.getModelMatrix(); float ma[16]; memcpy(ma, mm.data(), 64);
                     ImGuizmo::Manipulate(v, p, mCurrentGizmoOperation, mCurrentGizmoMode, ma);
-                    if(ImGuizmo::IsUsing()) { float t[3], r[3], sc[3]; ImGuizmo::DecomposeMatrixToComponents(ma, t, r, sc); s->transform.position = Vec3(t[0], t[1], t[2]); s->transform.rotation = Vec3(r[0], r[1], r[2]); s->transform.scale = Vec3(sc[0], sc[1], sc[2]); }
+                    if(ImGuizmo::IsUsing()) {
+                        float t[3], r[3], sc[3];
+                        ImGuizmo::DecomposeMatrixToComponents(ma, t, r, sc);
+                        s->transform.position = Vec3(t[0], t[1], t[2]);
+                        // --- FIX ROTACJI GIZMO (Konwersja na Radiany) ---
+                        s->transform.rotation = Vec3(r[0] * DEG2RAD, r[1] * DEG2RAD, r[2] * DEG2RAD);
+                        s->transform.scale = Vec3(sc[0], sc[1], sc[2]);
+                    }
                 }
             }
         }
@@ -378,7 +389,19 @@ int main() {
                     if (obj.id == selectedId) {
                         char buf[128]; memset(buf,0,128); strncpy(buf, obj.name.c_str(), 127); if (ImGui::InputText("Name", buf, 128)) obj.name = std::string(buf);
                         if(obj.name=="Player") ImGui::TextColored(ImVec4(0,1,0,1),"Player Script Active");
-                        if(ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen)) { ImGui::DragFloat3("Pos", &obj.transform.position.x, 0.1f); ImGui::DragFloat3("Rot", &obj.transform.rotation.x, 0.5f); ImGui::DragFloat3("Scale", &obj.transform.scale.x, 0.05f); }
+                        if(ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen)) {
+                            ImGui::DragFloat3("Pos", &obj.transform.position.x, 0.1f);
+
+                            // --- FIX ROTACJI INSPEKTORA (Wyświetlanie Stopni, zapis Radianów) ---
+                            float rDeg[3] = { obj.transform.rotation.x * RAD2DEG, obj.transform.rotation.y * RAD2DEG, obj.transform.rotation.z * RAD2DEG };
+                            if (ImGui::DragFloat3("Rot", rDeg, 0.5f)) {
+                                obj.transform.rotation.x = rDeg[0] * DEG2RAD;
+                                obj.transform.rotation.y = rDeg[1] * DEG2RAD;
+                                obj.transform.rotation.z = rDeg[2] * DEG2RAD;
+                            }
+
+                            ImGui::DragFloat3("Scale", &obj.transform.scale.x, 0.05f);
+                        }
                         if(ImGui::CollapsingHeader("Physics", ImGuiTreeNodeFlags_DefaultOpen)) { ImGui::Checkbox("Collider",&obj.hasCollider); ImGui::Checkbox("Gravity",&obj.useGravity); ImGui::Checkbox("Shoot",&obj.canShoot); ImGui::Checkbox("Lock Y",&obj.lockY); }
 
                         if(ImGui::CollapsingHeader("Material", ImGuiTreeNodeFlags_DefaultOpen)) {
