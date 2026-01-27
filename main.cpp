@@ -25,9 +25,7 @@ using json = nlohmann::json;
 
 extern "C" char const * tinyfd_openFileDialog(char const * aTitle, char const * aDefaultPathAndFile, int aNumOfFilterPatterns, char const * const * aFilterPatterns, char const * aSingleFilterDescription, int aAllowMultipleSelects);
 
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
+
 
 // --- DODANE STAŁE POMOCNICZE (Naprawa rotacji i narrowing error) ---
 const float PI_F = 3.1415926535f;
