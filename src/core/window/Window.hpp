@@ -1,26 +1,25 @@
 #pragma once
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <string>
 
 class Window {
 public:
-    Window(int width, int height, const char* title);
+    Window(int width, int height, const std::string& title);
     ~Window();
 
-    bool shouldClose() const;
-    void closeWindow() const;
-    void pollEvents() const;
-    void swapBuffers() const;
-    void setBackgroundColor(float r, float g,float b, float alpha) const;
-    void setWindowFullScreen(bool enable) const;
+    bool shouldClose() const { return glfwWindowShouldClose(m_window); }
+    void close() { glfwSetWindowShouldClose(m_window, GLFW_TRUE); }
+    void pollEvents() { glfwPollEvents(); }
+    void swapBuffers() { glfwSwapBuffers(m_window); }
 
-
-    GLFWwindow* getHandle() const;
-
-    void setSize(int width, int height);
-
+    GLFWwindow* getNativeWindow() { return m_window; }
+    int getWidth() const { return m_width; }
+    int getHeight() const { return m_height; }
 
 private:
-    GLFWwindow* window = nullptr;
-
-    static void framebufferCallback(GLFWwindow* window, int width, int height);
+    GLFWwindow* m_window;
+    int m_width;
+    int m_height;
+    std::string m_title;
 };

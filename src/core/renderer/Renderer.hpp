@@ -1,18 +1,21 @@
 #pragma once
 #include <glad/glad.h>
+#include <vector>
+#include "../sceneobject/SceneObject.hpp"
+#include "../math/Mat4.hpp"
 
-class TriangleRenderer {
+class PrimitiveRenderer {
 public:
-    TriangleRenderer();
-    ~TriangleRenderer();
+    PrimitiveRenderer();
+    ~PrimitiveRenderer();
 
-    void draw();
+    void draw(const std::vector<SceneObject>& objects, const Mat4& view, const Mat4& proj, int selectedId = -1);
 
 private:
-    unsigned int VAO, VBO;
+    // Zwiększamy liczbę buforów do 4 (Triangle, Quad, Pyramid, Cube)
+    unsigned int vao[4];
+    unsigned int vbo[4];
     unsigned int shaderProgram;
 
-    unsigned int compileShader(unsigned int type, const char* source);
-    void setupTriangle();
-    void setupShader();
+    void setupShape(int index, const std::vector<float>& vertices);
 };

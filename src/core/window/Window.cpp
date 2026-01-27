@@ -1,90 +1,45 @@
-#include <glad/glad.h>
-
 #include "Window.hpp"
-#include <stdexcept>
+#include <iostream>
 
-Window::Window(int width, int height, const char *title) {
-    // Initialize GLFW library
-    if (!glfwInit())
-        throw std::runtime_error("Failed to initialize GLFW");
-
-    // Set OpenGL version and profile hints
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-#ifdef __APPLE__
-    // macOS requires forward-compatible core profile
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-#endif
-
-    // Create a GLFW window with given width, height, and title
-    window = glfwCreateWindow(width, height, title, nullptr, nullptr);
-    if (!window)
-        throw std::runtime_error("Failed to create window");
-
-    // Set the created window as the current OpenGL context
-    glfwMakeContextCurrent(window);
-
-    // Load OpenGL function pointers using GLAD
-    if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress))
-        throw std::runtime_error("Failed to initialize GLAD");
-
-    // Set callback to adjust viewport when window is resized
-    glfwSetFramebufferSizeCallback(window, framebufferCallback);
-}
-
-Window::~Window() {
-    // Destroy the GLFW window and terminate GLFW
-    glfwDestroyWindow(window);
-    glfwTerminate();
-}
-
-void Window::framebufferCallback(GLFWwindow *, int width, int height) {
-    // Update OpenGL viewport to match new window size
+// Callback dla zmiany rozmiaru okna
+void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
-bool Window::shouldClose() const {
-    // Check if the window should close
-    return glfwWindowShouldClose(window);
+Window::Window(int width, int height, const std::string& title)
+    : m_width(width), m_height(height), m_title(title)
+{
+    if (!glfwInit()) {
+        std::cerr << "Failed to initialize GLFW!" << std::endl;
+        return;
+    }
+
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+#ifdef __APPLE__
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
+
+    m_window = glfwCreateWindow(m_width, m_height, m_title.c_str(), nullptr, nullptr);
+    if (!m_window) {
+        std::cerr << "Failed to create GLFW window!" << std::endl;
+        glfwTerminate();
+        return;
+    }
+
+    glfwMakeContextCurrent(m_window);
+    glfwSetFramebufferSizeCallback(m_window, framebuffer_size_callback);
+
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+        std::cerr << "Failed to initialize GLAD!" << std::endl;
+        return;
+    }
+
+    std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
 }
 
-void Window::closeWindow() const {
-    glfwSetWindowShouldClose(window, true);
+Window::~Window() {
+    glfwDestroyWindow(m_window);
+    glfwTerminate();
 }
-
-void Window::pollEvents() const {
-    // Poll for input events (keyboard, mouse, etc.)
-    glfwPollEvents();
-}
-
-void Window::swapBuffers() const {
-    // Swap the front and back buffers to display rendered content
-    glfwSwapBuffers(window);
-}
-
-void Window::setBackgroundColor(float r, float g, float b, float alpha) const {
-    glClearColor(r, g, b, alpha);
-    glClear(GL_COLOR_BUFFER_BIT);
-}
-
-GLFWwindow *Window::getHandle() const {
-    // Return the raw GLFWwindow pointer
-    return window;
-}
-
-void Window::setSize(int width, int height) {
-    // Set the window size dynamically
-    glfwSetWindowSize(window, width, height);
-}
-
-// void Window::setWindowFullScreen(bool enable) const {
-//     if (enable) {
-//         glfwGetWindowPos(window, &windowedPosX, &windowedPosY);
-//         glfwGetWindowSize(window, &windowedWidth, &windowedHeight);
-//
-//         GLFWwindow* monitor= glfwGetPrimaryMonitor();
-//     }
-//
-// }

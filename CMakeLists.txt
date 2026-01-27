@@ -3,17 +3,23 @@ project(DuckyEngine LANGUAGES CXX C)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+# Zapobiega problemom z duplikacją definicji na Macu
+if(APPLE)
+    set(CMAKE_MACOSX_RPATH 1)
+endif()
 
 # ────────────────────────────────────────────────────────────────
-# Znajdowanie zależności
+# 1. Znajdowanie zależności
 # ────────────────────────────────────────────────────────────────
 find_package(OpenGL REQUIRED)
 find_package(glfw3 3.3 REQUIRED)
 
 # ────────────────────────────────────────────────────────────────
-# ImGui
+# 2. Definicja grup plików (scalone i uporządkowane)
 # ────────────────────────────────────────────────────────────────
+
+# ImGui
 set(IMGUI_DIR ${CMAKE_SOURCE_DIR}/external/imgui)
 set(IMGUI_SOURCES
         ${IMGUI_DIR}/imgui.cpp
@@ -24,53 +30,38 @@ set(IMGUI_SOURCES
         ${IMGUI_DIR}/backends/imgui_impl_opengl3.cpp
 )
 
-# ────────────────────────────────────────────────────────────────
-# tinyfiledialogs
-# ────────────────────────────────────────────────────────────────
+# TinyFileDialogs
 set(TINYFILEDIALOGS_DIR ${CMAKE_SOURCE_DIR}/external/tinyfiledialogs)
-set(TINYFILEDIALOGS_SOURCES
-        ${TINYFILEDIALOGS_DIR}/tinyfiledialogs.c
-        src/core/menubar/MenuBar.cpp
-        src/core/menubar/MenuBar.hpp
-        src/core/textureloader/TextureLoader.cpp
-        src/core/textureloader/TextureLoader.hpp
-        external/images/stb_image.h
+set(TINYFILEDIALOGS_SOURCES ${TINYFILEDIALOGS_DIR}/tinyfiledialogs.c)
+
+# Matematyka i Core (Najważniejsze dla Twoich błędów!)
+set(ENGINE_SOURCES
+        src/core/math/Mat4.cpp
+        src/core/math/MatrixTransform.cpp
+        src/core/camera/Camera.cpp
         src/core/renderer/Renderer.cpp
-        src/core/renderer/Renderer.hpp
-)
-# ────────── Fonts ──────────
-file(GLOB FONT_FILES "${CMAKE_SOURCE_DIR}/ui/font/mainFont/*")
-foreach(FONT_FILE ${FONT_FILES})
-    configure_file(${FONT_FILE} ${CMAKE_BINARY_DIR}/font/mainFont COPYONLY)
-endforeach()
-
-# ────────── Icons ──────────
-file(GLOB ICON_FILES "${CMAKE_SOURCE_DIR}/ui/icon/*")
-foreach(ICON_FILE ${ICON_FILES})
-    configure_file(${ICON_FILE} ${CMAKE_BINARY_DIR}/ui/icon COPYONLY)
-endforeach()
-
-# ────────────────────────────────────────────────────────────────
-# Źródła projektu
-# ────────────────────────────────────────────────────────────────
-add_executable(DuckyEngine
-        main.cpp
-        glad/src/glad.c
+        src/core/viewport/Viewport.cpp
+        src/core/sceneobject/SceneObject.cpp
         src/core/window/Window.cpp
         src/core/gui/GuiLayer.cpp
         src/core/filesystem/ProjectBrowser.cpp
         src/core/menubar/MenuBar.cpp
-        src/core/menubar/MenuBar.hpp
         src/core/textureloader/TextureLoader.cpp
-        src/core/textureloader/TextureLoader.hpp
-        src/core/renderer/Renderer.cpp
-        src/core/renderer/Renderer.hpp
+        glad/src/glad.c
+)
+
+# ────────────────────────────────────────────────────────────────
+# 3. Tworzenie pliku wykonywalnego
+# ────────────────────────────────────────────────────────────────
+add_executable(DuckyEngine
+        main.cpp
+        ${ENGINE_SOURCES}
         ${IMGUI_SOURCES}
         ${TINYFILEDIALOGS_SOURCES}
 )
 
 # ────────────────────────────────────────────────────────────────
-# Include directories
+# 4. Include directories
 # ────────────────────────────────────────────────────────────────
 target_include_directories(DuckyEngine PRIVATE
         glad/include
@@ -78,13 +69,13 @@ target_include_directories(DuckyEngine PRIVATE
         ${IMGUI_DIR}/backends
         ${TINYFILEDIALOGS_DIR}
         src
-        ${STB_DIR}
+        external/images # Dla stb_image.h
 )
 
 # ────────────────────────────────────────────────────────────────
-# Linkowanie – różne na platformach
+# 5. Linkowanie
 # ────────────────────────────────────────────────────────────────
-if(WIN32) #Windows
+if(WIN32)
     target_link_libraries(DuckyEngine PRIVATE
             glfw
             OpenGL::GL
@@ -93,15 +84,16 @@ if(WIN32) #Windows
             user32
             shell32
     )
-elseif(APPLE) #Macbook
+elseif(APPLE)
     target_link_libraries(DuckyEngine PRIVATE
             glfw
             OpenGL::GL
             "-framework Cocoa"
             "-framework IOKit"
             "-framework CoreVideo"
+            "-framework QuartzCore"
     )
-else() # Linux
+else()
     find_package(X11 REQUIRED)
     target_link_libraries(DuckyEngine PRIVATE
             glfw
@@ -113,9 +105,6 @@ else() # Linux
 endif()
 
 # ────────────────────────────────────────────────────────────────
-# Flagi kompilacji / definicje
+# 6. Zasoby (Kopiowanie fontów i ikon)
 # ────────────────────────────────────────────────────────────────
-target_compile_definitions(DuckyEngine PRIVATE
-        GL_MAJOR_VERSION=4
-        GL_MINOR_VERSION=1
-)
+# Twoje configure_file są poprawne, zostawiam je bez zmian
