@@ -8,18 +8,26 @@ public:
     Window(int width, int height, const std::string& title);
     ~Window();
 
-    bool shouldClose() const { return glfwWindowShouldClose(m_window); }
-    void close() { glfwSetWindowShouldClose(m_window, GLFW_TRUE); }
-    void pollEvents() { glfwPollEvents(); }
-    void swapBuffers() { glfwSwapBuffers(m_window); }
+    bool shouldClose();
+    void swapBuffers();
+    void pollEvents();
+    void close(); // Funkcja do zamykania z menu
 
-    GLFWwindow* getNativeWindow() { return m_window; }
-    int getWidth() const { return m_width; }
-    int getHeight() const { return m_height; }
+    // --- NOWOŚĆ: Fullscreen ---
+    void toggleFullscreen();
+
+    GLFWwindow* getNativeWindow() const { return window; }
+    int getWidth() const { return width; }
+    int getHeight() const { return height; }
+
+    void setTitle(const std::string& title);
 
 private:
-    GLFWwindow* m_window;
-    int m_width;
-    int m_height;
-    std::string m_title;
+    GLFWwindow* window;
+    int width, height;
+
+    // Zmienne do przywracania okna po wyjściu z fullscreena
+    bool isFullscreen = false;
+    int windowedPosX, windowedPosY;
+    int windowedWidth, windowedHeight;
 };

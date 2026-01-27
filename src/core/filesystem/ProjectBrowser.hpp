@@ -1,14 +1,21 @@
 #pragma once
 #include <string>
+#include <vector>
 #include <filesystem>
 
 class ProjectBrowser {
 public:
     ProjectBrowser(const std::string& rootPath);
-    void draw();
-    void setPath(const std::string& newPath);
-    std::string getCurrentPath() const;
+
+    std::string draw();
+
+    // --- NOWOŚĆ: Funkcja do zmiany folderu z kodu ---
+    void navigateTo(const std::string& filePath);
+
+    std::string getDraggedFile() const { return draggedFile; }
+    void clearDraggedFile() { draggedFile = ""; }
 
 private:
-    std::filesystem::path currentPath;
+    std::filesystem::path currentDirectory;
+    std::string draggedFile;
 };

@@ -6,21 +6,34 @@ public:
     Viewport(int width, int height);
     ~Viewport();
 
-    void resize(int width, int height);
+    // Przygotowanie do rysowania sceny 3D
     void bind();
     void unbind();
 
-    unsigned int getTexture() const;
-    int getWidth() const;
-    int getHeight() const;
+    // NOWOŚĆ: Nakładanie efektów
+    void drawPostProcess(int effectMode);
+
+    // Pobranie tekstury (teraz zwracamy tę przetworzoną!)
+    unsigned int getFinalTexture() const { return postProcessTexture; }
 
 private:
-    unsigned int fbo = 0;
-    unsigned int colorTexture = 0;
-    unsigned int rbo = 0;
+    int width, height;
 
-    int width;
-    int height;
+    // 1. FBO Sceny (Tu rysujemy kaczki i słońce)
+    unsigned int sceneFBO;
+    unsigned int sceneTexture;
+    unsigned int rbo;
 
-    void invalidate();
+    // 2. FBO Post-Processingu (Tu rysujemy wynik z efektem)
+    unsigned int postProcessFBO;
+    unsigned int postProcessTexture;
+
+    // 3. Screen Quad (Ekran, na którym wyświetlamy shader)
+    unsigned int quadVAO, quadVBO;
+    unsigned int screenShader;
+
+    void initRenderBuffers();
+    void initPostProcessBuffers();
+    void initScreenQuad();
+    void initScreenShader();
 };

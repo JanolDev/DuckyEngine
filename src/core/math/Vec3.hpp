@@ -4,31 +4,36 @@
 struct Vec3 {
     float x, y, z;
 
-    Vec3(float x = 0.0f, float y = 0.0f, float z = 0.0f) : x(x), y(y), z(z) {}
+    Vec3() : x(0), y(0), z(0) {}
+    Vec3(float x, float y, float z) : x(x), y(y), z(z) {}
 
-    // Podstawowe operacje
-    Vec3 operator+(const Vec3& v) const { return Vec3(x + v.x, y + v.y, z + v.z); }
-    Vec3 operator-(const Vec3& v) const { return Vec3(x - v.x, y - v.y, z - v.z); }
-    Vec3 operator*(float f) const { return Vec3(x * f, y * f, z * f); }
-    void operator+=(const Vec3& v) { x += v.x; y += v.y; z += v.z; }
-    void operator-=(const Vec3& v) { x -= v.x; y -= v.y; z -= v.z; }
+    // Operatory
+    Vec3 operator+(const Vec3& other) const { return Vec3(x + other.x, y + other.y, z + other.z); }
+    Vec3 operator-(const Vec3& other) const { return Vec3(x - other.x, y - other.y, z - other.z); }
+    Vec3 operator*(float scalar) const { return Vec3(x * scalar, y * scalar, z * scalar); }
 
-    // Matematyka wektorowa
-    float dot(const Vec3& v) const { return x * v.x + y * v.y + z * v.z; }
+    // Długość
+    float length() const { return std::sqrt(x * x + y * y + z * z); }
 
-    Vec3 cross(const Vec3& v) const {
+    // Normalizacja (Zwraca wektor o długości 1)
+    Vec3 normalize() const {
+        float len = length();
+        if (len == 0) return Vec3(0, 0, 0);
+        return Vec3(x / len, y / len, z / len);
+    }
+
+    // Iloczyn wektorowy (Cross Product)
+    Vec3 cross(const Vec3& other) const {
         return Vec3(
-            y * v.z - z * v.y,
-            z * v.x - x * v.z,
-            x * v.y - y * v.x
+            y * other.z - z * other.y,
+            z * other.x - x * other.z,
+            x * other.y - y * other.x
         );
     }
 
-    float length() const { return std::sqrt(x * x + y * y + z * z); }
-
-    Vec3 normalized() const {
-        float l = length();
-        if (l > 0) return (*this) * (1.0f / l);
-        return Vec3(0, 0, 0);
+    // --- NOWOŚĆ: Iloczyn skalarny (Dot Product) ---
+    // Potrzebne do MatrixTransform
+    float dot(const Vec3& other) const {
+        return x * other.x + y * other.y + z * other.z;
     }
 };

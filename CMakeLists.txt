@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 project(DuckyEngine LANGUAGES CXX C)
 
+add_definitions(-DIMGUI_DEFINE_MATH_OPERATORS)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -30,11 +31,15 @@ set(IMGUI_SOURCES
         ${IMGUI_DIR}/backends/imgui_impl_opengl3.cpp
 )
 
+# --- NOWOŚĆ: ImGuizmo ---
+set(IMGUIZMO_DIR ${CMAKE_SOURCE_DIR}/ImGuizmo)
+set(IMGUIZMO_SOURCES ${IMGUIZMO_DIR}/ImGuizmo.cpp)
+
 # TinyFileDialogs
 set(TINYFILEDIALOGS_DIR ${CMAKE_SOURCE_DIR}/external/tinyfiledialogs)
 set(TINYFILEDIALOGS_SOURCES ${TINYFILEDIALOGS_DIR}/tinyfiledialogs.c)
 
-# Matematyka i Core (Najważniejsze dla Twoich błędów!)
+# Matematyka i Core
 set(ENGINE_SOURCES
         src/core/math/Mat4.cpp
         src/core/math/MatrixTransform.cpp
@@ -48,6 +53,12 @@ set(ENGINE_SOURCES
         src/core/menubar/MenuBar.cpp
         src/core/textureloader/TextureLoader.cpp
         glad/src/glad.c
+        src/core/gui/Console.cpp
+        src/core/gui/Console.hpp
+        src/core/math/Vec4.cpp
+        src/core/math/Vec4.hpp
+        src/core/renderer/tiny_obj_loader.h
+        src/core/json.hpp
 )
 
 # ────────────────────────────────────────────────────────────────
@@ -57,6 +68,7 @@ add_executable(DuckyEngine
         main.cpp
         ${ENGINE_SOURCES}
         ${IMGUI_SOURCES}
+        ${IMGUIZMO_SOURCES}       # Dodano źródła ImGuizmo
         ${TINYFILEDIALOGS_SOURCES}
 )
 
@@ -67,9 +79,10 @@ target_include_directories(DuckyEngine PRIVATE
         glad/include
         ${IMGUI_DIR}
         ${IMGUI_DIR}/backends
+        ${IMGUIZMO_DIR}           # Dodano nagłówki ImGuizmo
         ${TINYFILEDIALOGS_DIR}
         src
-        external/images # Dla stb_image.h
+        external/images           # Dla stb_image.h
 )
 
 # ────────────────────────────────────────────────────────────────
@@ -105,6 +118,7 @@ else()
 endif()
 
 # ────────────────────────────────────────────────────────────────
-# 6. Zasoby (Kopiowanie fontów i ikon)
+# 6. Zasoby
 # ────────────────────────────────────────────────────────────────
-# Twoje configure_file są poprawne, zostawiam je bez zmian
+# (Tu ewentualnie Twoje komendy configure_file / file copy, jeśli masz)
+file(COPY "${CMAKE_SOURCE_DIR}/assets" DESTINATION "${CMAKE_BINARY_DIR}")
