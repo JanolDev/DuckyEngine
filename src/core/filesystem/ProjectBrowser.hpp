@@ -9,7 +9,7 @@ public:
 
     std::string draw();
 
-    // --- NOWOŚĆ: Funkcja do zmiany folderu z kodu ---
+
     void navigateTo(const std::string& filePath);
 
     std::string getDraggedFile() const { return draggedFile; }

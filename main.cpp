@@ -29,7 +29,7 @@ extern "C" char const * tinyfd_openFileDialog(char const * aTitle, char const * 
 #define M_PI 3.14159265358979323846
 #endif
 
-// --- HELPERY ---
+
 Vec4 multiply(const Mat4& m, const Vec4& v) {
     const float* p = m.data();
     return Vec4(p[0]*v.x+p[4]*v.y+p[8]*v.z+p[12]*v.w, p[1]*v.x+p[5]*v.y+p[9]*v.z+p[13]*v.w, p[2]*v.x+p[6]*v.y+p[10]*v.z+p[14]*v.w, p[3]*v.x+p[7]*v.y+p[11]*v.z+p[15]*v.w);
@@ -37,16 +37,13 @@ Vec4 multiply(const Mat4& m, const Vec4& v) {
 
 struct GeneratedMesh { unsigned int vao; int vertexCount; };
 
-// Helper: Dodaje jeden wierzchołek do bufora (8 floatów)
+
 void addVert(std::vector<float>& v, float x, float y, float z, float nx, float ny, float nz, float u, float tex_v) {
     v.push_back(x); v.push_back(y); v.push_back(z);    // Pos
     v.push_back(nx); v.push_back(ny); v.push_back(nz); // Norm
     v.push_back(u); v.push_back(tex_v);                // UV
 }
 
-// ==========================================
-// 1. SFERA (METODA GL_DRAW_ARRAYS - BEZ INDEKSÓW)
-// ==========================================
 GeneratedMesh generateSphereMesh(int sectors, int stacks) {
     std::vector<float> data;
     float radius = 0.5f;
@@ -100,9 +97,7 @@ GeneratedMesh generateSphereMesh(int sectors, int stacks) {
     return {VAO, (int)(data.size() / 8)};
 }
 
-// ==========================================
-// 2. WALEC (METODA GL_DRAW_ARRAYS - BEZ INDEKSÓW)
-// ==========================================
+
 GeneratedMesh generateCylinderMesh(int sectors) {
     std::vector<float> data;
     float radius = 0.5f;
@@ -181,7 +176,7 @@ void updatePhysics(std::vector<SceneObject>& objects, float dt) {
     }
 }
 
-// --- SERIALIZACJA ---
+// --- SERIALIZATION ---
 json serializeObject(const SceneObject& o) {
     json j; j["id"]=o.id; j["name"]=o.name; j["type"]=(int)o.type; j["transform"]["pos"]={o.transform.position.x,o.transform.position.y,o.transform.position.z}; j["transform"]["rot"]={o.transform.rotation.x,o.transform.rotation.y,o.transform.rotation.z}; j["transform"]["scale"]={o.transform.scale.x,o.transform.scale.y,o.transform.scale.z}; j["hasCollider"]=o.hasCollider; j["useGravity"]=o.useGravity; j["canShoot"]=o.canShoot; j["velocity"]={o.velocity.x,o.velocity.y,o.velocity.z}; j["locks"]={o.lockX,o.lockY,o.lockZ}; j["texturePath"]=o.texturePath; j["modelPath"]=o.modelPath; j["material"]["shininess"]=o.material.shininess; j["material"]["specularStrength"]=o.material.specularStrength; j["material"]["specularMapPath"]=o.material.specularMapPath; return j;
 }
@@ -250,7 +245,6 @@ int main() {
             objects.clear();
             for (const auto& el : sceneSnapshot) objects.push_back(deserializeObject(el, renderer));
             camera = editorCamera;
-            // Regeneracja
             for(auto& obj : objects) {
                 if (obj.vao == 0) {
                     if(obj.name.find("Sphere") != std::string::npos) { GeneratedMesh m = generateSphereMesh(32, 24); obj.vao = m.vao; obj.vertexCount = m.vertexCount; obj.type = MeshType::Model; }
@@ -373,7 +367,7 @@ int main() {
         }
         ImGui::End();
 
-        // --- INSPECTOR (NAPRAWIONY SEKCJA MATERIAL) ---
+
         if (settings.showInspector) {
             ImGui::SetNextWindowPos(ImVec2(1300, menuHeight)); ImGui::SetNextWindowSize(ImVec2(300, mainAreaHeight + toolbarHeight + bottomHeight));
             ImGui::Begin("Inspector", &settings.showInspector, windowFlags | ImGuiWindowFlags_NoTitleBar);
@@ -386,7 +380,7 @@ int main() {
                         if(obj.name=="Player") ImGui::TextColored(ImVec4(0,1,0,1),"Player Script Active");
                         if(ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen)) { ImGui::DragFloat3("Pos", &obj.transform.position.x, 0.1f); ImGui::DragFloat3("Rot", &obj.transform.rotation.x, 0.5f); ImGui::DragFloat3("Scale", &obj.transform.scale.x, 0.05f); }
                         if(ImGui::CollapsingHeader("Physics", ImGuiTreeNodeFlags_DefaultOpen)) { ImGui::Checkbox("Collider",&obj.hasCollider); ImGui::Checkbox("Gravity",&obj.useGravity); ImGui::Checkbox("Shoot",&obj.canShoot); ImGui::Checkbox("Lock Y",&obj.lockY); }
-                        // --- PRZYWRÓCONA SEKCJA MATERIAŁU ---
+
                         if(ImGui::CollapsingHeader("Material", ImGuiTreeNodeFlags_DefaultOpen)) {
                             ImGui::SliderFloat("Shininess", &obj.material.shininess, 1.0f, 256.0f);
                             ImGui::SliderFloat("Spec Strength", &obj.material.specularStrength, 0.0f, 2.0f);

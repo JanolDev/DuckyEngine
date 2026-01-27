@@ -3,6 +3,8 @@
 
 class Viewport {
 public:
+    float m_Width=0.0f;
+    float m_Height=0.0f;
     Viewport(int width, int height);
     ~Viewport();
 
@@ -16,8 +18,10 @@ public:
     // Pobranie tekstury (teraz zwracamy tę przetworzoną!)
     unsigned int getFinalTexture() const { return postProcessTexture; }
 
+    int getWidth() const { return m_Width; }
+    int getHeight() const { return m_Height; }
+
 private:
-    int width, height;
 
     // 1. FBO Sceny (Tu rysujemy kaczki i słońce)
     unsigned int sceneFBO;

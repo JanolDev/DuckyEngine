@@ -8,9 +8,9 @@ void ProjectBrowser::navigateTo(const std::string& filePath) {
     if (filePath.empty()) return;
     std::filesystem::path p(filePath);
 
-    // Upewniamy się, że ścieżka istnieje
+
     if (std::filesystem::exists(p)) {
-        // Jeśli to plik, bierzemy jego folder nadrzędny
+
         if (!std::filesystem::is_directory(p)) {
             currentDirectory = p.parent_path();
         } else {
@@ -22,7 +22,7 @@ void ProjectBrowser::navigateTo(const std::string& filePath) {
 std::string ProjectBrowser::draw() {
     std::string sceneToLoad = "";
 
-    // Pasek adresu (Tylko tekst, bez przycisku Back na górze)
+
     ImGui::Text("Current Dir: %s", currentDirectory.string().c_str());
     ImGui::Separator();
 
@@ -35,7 +35,7 @@ std::string ProjectBrowser::draw() {
 
     if (ImGui::BeginTable("BrowserTable", columnCount)) {
 
-        // --- PRZYCISK ".." (COFNIJ) JAKO PIERWSZA IKONA ---
+
         if (currentDirectory.has_parent_path()) {
             ImGui::TableNextColumn();
             ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.6f, 0.6f, 0.6f, 1.0f));
@@ -46,9 +46,8 @@ std::string ProjectBrowser::draw() {
             ImGui::TextWrapped("Back");
         }
 
-        // --- PĘTLA PLIKÓW ---
         for (const auto& entry : std::filesystem::directory_iterator(currentDirectory)) {
-            // Pomijamy pliki systemowe zaczynające się od kropki (np. .DS_Store na Mac)
+
             if (entry.path().filename().string()[0] == '.') continue;
 
             ImGui::TableNextColumn();
@@ -59,11 +58,11 @@ std::string ProjectBrowser::draw() {
 
             ImGui::PushID(filename.c_str());
 
-            // Kolory: Żółty dla folderów, Niebieski dla plików
+
             if (isDir) ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8f, 0.7f, 0.2f, 1.0f));
             else       ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.4f, 0.8f, 1.0f));
 
-            // Wyświetlamy przycisk (Ikona)
+
             ImGui::Button(isDir ? "[DIR]" : "[FILE]", ImVec2(thumbnailSize, thumbnailSize));
             ImGui::PopStyleColor();
 
@@ -74,7 +73,7 @@ std::string ProjectBrowser::draw() {
                 ImGui::EndDragDropSource();
             }
 
-            // Obsługa kliknięcia (Wejście w folder lub ładowanie sceny)
+
             if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
                 if (isDir) {
                     currentDirectory /= entry.path().filename();

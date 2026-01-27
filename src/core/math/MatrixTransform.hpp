@@ -22,14 +22,16 @@ public:
     }
 
     static Mat4 rotate(float angle, const Vec3& v) {
-        float const a = angle; // Zakładamy radiany, jeśli stopnie to trzeba przekonwertować
+        // KLUCZOWA ZMIANA: Dodaj (1.0f), aby stworzyć czystą macierz jednostkową
+        Mat4 res(1.0f);
+
+        float const a = angle;
         float const c = cos(a);
         float const s = sin(a);
 
         Vec3 axis = v.normalize();
         Vec3 temp = axis * (1.0f - c);
 
-        Mat4 res;
         res.m[0] = c + temp.x * axis.x;
         res.m[1] = temp.x * axis.y + s * axis.z;
         res.m[2] = temp.x * axis.z - s * axis.y;
@@ -42,7 +44,7 @@ public:
         res.m[9] = temp.z * axis.y - s * axis.x;
         res.m[10] = c + temp.z * axis.z;
 
-        res.m[15] = 1.0f;
+        // Nie musisz już ustawiać res.m[15] = 1.0f, bo Mat4(1.0f) robi to za Ciebie.
         return res;
     }
 

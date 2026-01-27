@@ -9,20 +9,18 @@ GuiLayer::GuiLayer(Window& window) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
 
-    // Jedna deklaracja io
     ImGuiIO& io = ImGui::GetIO();
 
 
     setupTheme();
 
-    // Ładowanie fontu
+
     const char* fontPath = "../assets/fonts/mainFont/JetBrainsMono-Bold.ttf";
     if (!std::filesystem::exists(fontPath) || !io.Fonts->AddFontFromFileTTF(fontPath, 16.0f)) {
         std::cout << "Font not found, using default fonts.\n";
         io.Fonts->AddFontDefault();
     }
 
-    // Backendy
     ImGui_ImplGlfw_InitForOpenGL(window.getNativeWindow(), true);
     ImGui_ImplOpenGL3_Init("#version 410");
 }

@@ -74,17 +74,16 @@ public:
         updateCameraVectors();
     }
 
-    // Publiczne, aby Main.cpp mógł aktualizować kamerę w trybie TPP
+
     void updateCameraVectors() {
         Vec3 newFront;
         newFront.x = std::cos(toRadians(yaw)) * std::cos(toRadians(pitch));
         newFront.y = std::sin(toRadians(pitch));
         newFront.z = std::sin(toRadians(yaw)) * std::cos(toRadians(pitch));
 
-        // Teraz to zadziała, bo dodaliśmy normalize() do Vec3.hpp
+
         front = newFront.normalize();
 
-        // Obliczamy wektory prostopadłe
         right = front.cross(worldUp).normalize();
         up    = right.cross(front).normalize();
     }

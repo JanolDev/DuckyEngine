@@ -20,17 +20,15 @@ void Console::log(const std::string& message, LogType type) {
 }
 
 void Console::draw() {
-    // Pasek narzędzi konsoli
     if (ImGui::Button("Clear")) clear();
     ImGui::SameLine();
     ImGui::Checkbox("Auto-scroll", &m_autoScroll);
     ImGui::Separator();
 
-    // Obszar logów
+
     ImGui::BeginChild("ScrollingRegion", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar);
 
     for (const auto& entry : m_logs) {
-        // Kolorowanie w zależności od typu
         ImVec4 color;
         std::string prefix;
         
@@ -51,7 +49,7 @@ void Console::draw() {
         ImGui::PopStyleColor();
     }
 
-    // Auto-scrollowanie
+
     if (m_scrollToBottom) {
         ImGui::SetScrollHereY(1.0f);
         m_scrollToBottom = false;

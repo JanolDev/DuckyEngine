@@ -71,7 +71,8 @@ void main() {
     }
 })";
 
-Viewport::Viewport(int width, int height) : width(width), height(height) {
+Viewport::Viewport(int width, int height) : m_Width(width), m_Height(height) {
+
     initRenderBuffers();      // FBO Sceny
     initPostProcessBuffers(); // FBO Wynikowe
     initScreenQuad();         // Geometria ekranu
@@ -99,7 +100,7 @@ void Viewport::unbind() {
 void Viewport::drawPostProcess(int effectMode) {
     // 1. Przełączamy się na FBO wynikowe
     glBindFramebuffer(GL_FRAMEBUFFER, postProcessFBO);
-    glViewport(0, 0, width, height);
+    glViewport(0, 0, m_Width, m_Height);
     glClear(GL_COLOR_BUFFER_BIT); // Czyścimy (nie depth, bo to obraz 2D)
 
     // 2. Używamy shadera efektów
@@ -125,14 +126,14 @@ void Viewport::initRenderBuffers() {
 
     glGenTextures(1, &sceneTexture);
     glBindTexture(GL_TEXTURE_2D, sceneTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_Width, m_Height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, sceneTexture, 0);
 
     glGenRenderbuffers(1, &rbo);
     glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, m_Width, m_Height);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -146,7 +147,7 @@ void Viewport::initPostProcessBuffers() {
 
     glGenTextures(1, &postProcessTexture);
     glBindTexture(GL_TEXTURE_2D, postProcessTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_Width, m_Height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, postProcessTexture, 0);
